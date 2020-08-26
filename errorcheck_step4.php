@@ -1,4 +1,5 @@
 <?php
+#ステップ３のプログラムのままでは色々とエラーが出てしまうので、修正と細かい変更を加えた。
     include "setupsquare_step1.php";
 
     $width = 10;
@@ -13,7 +14,8 @@
     echo "\nselect square:";
     $trim = trim(fgets(STDIN));
     $choose = explode(",", $trim);
-    
+        
+    #最大サイズよりも大きくしたり、数値を入力出来ていなかった場合は入力しなおし
     if (in_array(FALSE,$choose) || $width < $choose[0] || $height < $choose[1]) {
         print "you enter inregal number.";
         continue;
@@ -38,6 +40,6 @@
             $gameover = FALSE;
         }
     }
-
+    #終了したときにゲームオーバーの文字を表示するようにした
     echo"\n\nGAME OVER\n";
 ?>
