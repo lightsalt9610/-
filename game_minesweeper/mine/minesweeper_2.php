@@ -28,21 +28,22 @@
         $trim = trim(fgets(STDIN));
         $choose = explode(",", $trim);
         $point_c = (($choose[0] * $width) + $choose[1]) - ($width + 1);
-        #旗の処理
-        if(array_key_exists(2,$choose) {
-            if ($choose[2] == "fp") {
 
 
-            } else if ($choose[2] == "fn") {
-                if 
-            }
-        }
 
         #選択がおかしい場合やり直し
-        if (in_array(FALSE,$choose) || $width < $choose[1] || $height < $choose[0] || in_array($point_c, $already_p) || in_array($point_c, $flaged)) {
+        if (in_array(FALSE,$choose) || $width < $choose[1] || $height < $choose[0] || in_array($point_c, $already_p)) {
             print "選択出来ません。もう一度やり直してください";
             continue;
+        } else if (array_key_exists(2,$choose) && $choose[2] == "fn" && ! in_array($point_c, $flaged)) {
+            echo "その場所に旗はありません。もう一度やり直してください";
+            continue;
+        } else if (! array_key_exists(2,$choose) && in_array($point_c, $flaged)) {
+            echo"そこには旗が置かれています。もう一度やり直してください";
+            continue;
         }
+
+        
         
         #周囲の地雷を探索
 
@@ -60,19 +61,29 @@
             if ($i % $width == 0) {
                 echo "\n";
             }
-            #上から　選んだ場所、既に選ばれた場所、まだ選んでない場所の処理
+            #上から、選んだ場所、既に選ばれた場所、まだ選んでない場所の処理
+            
             if ($i == $point_c) {
-                #開けた所が地雷かどうか
-                if ($mines[0] == 2) {
+                #旗の処理
+                if(array_key_exists(2,$choose)) {
+                    if ($choose[2] == "fp") {
+                        #旗を置く
+                        $flaged[] = $i;
+                        echo "△";               
+                    } else if ($choose[2] == "fn" && in_array($point_c, $flaged)) {
+                        $delfla = array_search($point_c, $flaged);
+                        if ($delfla != FALSE) {
+                            unset($flaged[$delfla]);
+                        }
+                        echo "■";
+                    }
+                } else if ($mines[0] == 2) {
+                    #開けた所が地雷だったら
                     echo "* ";
                     $appeared = TRUE;
                 } else {
                     #地雷の数の表示
                     echo $minefind . " ";
-
-                    if ($minefind == 0) {
-
-                    }
                     #開けた場所の記憶
                     $already_p[] = $i;
                     $already_n[$i] = $minefind;
@@ -81,6 +92,8 @@
             } else if (in_array($i, $already_p)){
                 #既に選んだ所を開ける
                 echo $already_n[$i] . " ";
+            } else if (in_array($i, $flaged)){
+                echo "△";
             } else {
                 #開けてない所
                 echo "■";
@@ -88,7 +101,24 @@
         }
         #地雷を踏んだらゲームオーバー
         if ($appeared) {
+            echo "\n\nbooooooom!!!\n\n";
+            for ($i = 0; $i < $width * $height; $i++) {
+                if ($i % $width == 0) {
+                    echo "\n";
+                }
+                if (in_array($i, $flaged)){
+                    echo "△";
+                } else if ($number[$i] == 2) {
+                    print "* ";
+                } else if (in_array($i, $already_p)){
+                    #既に選んだ所を開ける
+                    echo $already_n[$i] . " ";
+                }  else {
+                    #開けてない所
+                    echo "■";
+                }
             $gameover = FALSE;
+            }
         }
         #全て開けたらクリア
         if (count($already_p) > count(array_keys($number, 1))) {
